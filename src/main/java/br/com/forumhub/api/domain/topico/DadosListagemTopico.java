@@ -27,6 +27,7 @@ public record DadosListagemTopico(
                 topico.getRespostas()
                         .stream()
                         .filter(Resposta::getAtivo)
+                        .limit(5)
                         .map(DadosListagemResposta::new)
                         .toList()
         );
