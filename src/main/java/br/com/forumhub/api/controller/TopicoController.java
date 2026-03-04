@@ -49,10 +49,20 @@ public class TopicoController {
         return ResponseEntity.ok(page);
     }
 
+    @PutMapping
+    @Transactional
+    public ResponseEntity atualizar(@RequestBody @Valid DadosAtualizacaoTopico dadosAtualizacaoTopico){
+        var topico = topicoRepository.getReferenceById(dadosAtualizacaoTopico.id());
+        topico.atualizarInformacoes(dadosAtualizacaoTopico);
+
+        return ResponseEntity.ok(new DadosDetalhamentoTopico(topico));
+    }
+
+
+
     @GetMapping("/{id}")
     public ResponseEntity detalhar(@PathVariable Long id){
         var topico = topicoRepository.getReferenceById(id);
         return ResponseEntity.ok(new DadosDetalhamentoTopico(topico));
     }
-
 }
