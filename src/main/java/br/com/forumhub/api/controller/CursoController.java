@@ -47,4 +47,22 @@ public class CursoController {
 
         return ResponseEntity.ok(new DadosDetalhamentoCurso(curso));
     }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity excluir(@PathVariable Long id){
+        if (!cursoRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        var curso = cursoRepository.getReferenceById(id);
+        curso.excluir();
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity detalhar(@PathVariable Long id){
+        var curso = cursoRepository.getReferenceById(id);
+        return ResponseEntity.ok(new DadosDetalhamentoCurso(curso));
+    }
 }
