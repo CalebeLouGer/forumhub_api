@@ -1,6 +1,7 @@
 package br.com.forumhub.api.domain.topico;
 
 import br.com.forumhub.api.domain.curso.Curso;
+import br.com.forumhub.api.domain.resposta.Resposta;
 import br.com.forumhub.api.domain.usuario.Usuario;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
@@ -10,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Table(name = "topicos")
 @Entity(name = "Topico")
@@ -39,6 +41,10 @@ public class Topico {
     private Curso curso;
 
     private Boolean ativo;
+
+    @OneToMany(mappedBy = "topico")
+    private List<Resposta> respostas;
+
 
     public Topico(DadosCadastroTopico dadosCadastroTopico,Usuario usuario, Curso curso) {
         this.titulo = dadosCadastroTopico.titulo();
