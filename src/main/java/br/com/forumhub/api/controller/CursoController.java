@@ -1,17 +1,18 @@
 package br.com.forumhub.api.controller;
 
-import br.com.forumhub.api.domain.curso.Curso;
-import br.com.forumhub.api.domain.curso.DadosDetalhamentoCurso;
-import br.com.forumhub.api.domain.curso.CursoRepository;
-import br.com.forumhub.api.domain.curso.DadosCadastroCurso;
+import br.com.forumhub.api.domain.curso.*;
+import br.com.forumhub.api.domain.topico.DadosAtualizacaoTopico;
+import br.com.forumhub.api.domain.topico.DadosDetalhamentoTopico;
+import br.com.forumhub.api.domain.topico.DadosListagemTopico;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
@@ -30,5 +31,20 @@ public class CursoController {
 
         var uri = uriBuilder.path("/medicos/{id}").buildAndExpand(curso.getId()).toUri();
         return ResponseEntity.created(uri).body(new DadosDetalhamentoCurso(curso));
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<DadosListagemCurso>> listar(@PageableDefault(sort = {"nome"}, size = 10) Pageable paginacao){
+        var page =  cursoRepository.findAllByAtivoTrue(paginacao).map(DadosListagemCurso::new);
+        return ResponseEntity.ok(page);
+    }
+
+    @PutMapping
+    @Transactional
+    public ResponseEntity atualizar(@RequestBody @Valid DadosAtualizacaoCurso dadosAtualizacaoCurso){
+        var curso = cursoRepository.getReferenceById(dadosAtualizacaoCurso.id());
+        curso.atualizarInformacoes(dadosAtualizacaoCurso);
+
+        return ResponseEntity.ok(new DadosDetalhamentoCurso(curso));
     }
 }
