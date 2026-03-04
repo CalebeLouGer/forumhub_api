@@ -1,9 +1,6 @@
 package br.com.forumhub.api.controller;
 
 import br.com.forumhub.api.domain.curso.*;
-import br.com.forumhub.api.domain.topico.DadosAtualizacaoTopico;
-import br.com.forumhub.api.domain.topico.DadosDetalhamentoTopico;
-import br.com.forumhub.api.domain.topico.DadosListagemTopico;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -29,7 +26,7 @@ public class CursoController {
         var curso = new Curso(dadosCadastroCurso);
         cursoRepository.save(curso);
 
-        var uri = uriBuilder.path("/medicos/{id}").buildAndExpand(curso.getId()).toUri();
+        var uri = uriBuilder.path("/cursos/{id}").buildAndExpand(curso.getId()).toUri();
         return ResponseEntity.created(uri).body(new DadosDetalhamentoCurso(curso));
     }
 
