@@ -1,6 +1,10 @@
 package br.com.forumhub.api.controller;
 
 import br.com.forumhub.api.domain.curso.CursoRepository;
+import br.com.forumhub.api.domain.resposta.DadosCadastroResposta;
+import br.com.forumhub.api.domain.resposta.DadosDetalhamentoResposta;
+import br.com.forumhub.api.domain.resposta.Resposta;
+import br.com.forumhub.api.domain.resposta.RespostaRepository;
 import br.com.forumhub.api.domain.topico.*;
 import br.com.forumhub.api.domain.usuario.Usuario;
 import br.com.forumhub.api.domain.usuario.UsuarioRepository;
@@ -29,6 +33,9 @@ public class TopicoController {
 
     @Autowired
     private CursoRepository cursoRepository;
+
+    @Autowired
+    private RespostaRepository respostaRepository;
 
     @PostMapping
     @Transactional
@@ -74,5 +81,36 @@ public class TopicoController {
     public ResponseEntity detalhar(@PathVariable Long id){
         var topico = topicoRepository.getReferenceById(id);
         return ResponseEntity.ok(new DadosDetalhamentoTopico(topico));
+    }
+
+    @PostMapping("/{id}/respostas")
+    @Transactional
+    public ResponseEntity responder(@PathVariable Long id, @RequestBody @Valid DadosCadastroResposta dados, @AuthenticationPrincipal Usuario usuarioLogado, UriComponentsBuilder uriBuilder) {
+        var topico = topicoRepository.findById(id).orElseThrow(() -> new RuntimeException("Tópico não encontrado"));
+
+        var resposta = new Resposta(dados, usuarioLogado, topico);
+        respostaRepository.save(resposta);
+
+        var uri = uriBuilder.path("/respostas/{id}").buildAndExpand(resposta.getId()).toUri();
+        return ResponseEntity.created(uri).body(new DadosDetalhamentoResposta(resposta));
+    }
+
+    @DeleteMapping("/{idTopico}/respostas/{id}")
+    @Transactional
+    public ResponseEntity excluirResposta(@PathVariable Long idTopico, @PathVariable Long id){
+
+        var resposta = respostaRepository.findById(id);
+
+        if(resposta.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+
+        if(!resposta.get().getTopico().getId().equals(idTopico)){
+            return ResponseEntity.badRequest().build();
+        }
+
+        resposta.get().excluir();
+
+        return ResponseEntity.noContent().build();
     }
 }
